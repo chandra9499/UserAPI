@@ -18,7 +18,7 @@ namespace MovieAPI.BusinessLogicLayer.Service
         }
         public ClaimsPrincipal GetPrincipalFromExpieredToken(string token)
         {
-            return _tokenDAL.GetPrincipalFromExpieredToken(token);
+            return _tokenDAL.GetPrincipalFromExpiredToken(token);
         }
 
         public string GetRefreshToken()
@@ -29,6 +29,16 @@ namespace MovieAPI.BusinessLogicLayer.Service
         public TokenResponce GetToken(IEnumerable<Claim> claims)
         {
             return _tokenDAL.GetToken(claims);
+        }
+
+        public RefreshTokenRequest RefreshToken(RefreshTokenRequest tokenApiModel)
+        {
+            return _tokenDAL.RefreshToken(tokenApiModel);
+        }
+
+        public bool RevokeToken(string userName)
+        {
+            return _tokenDAL.RevokeToken(userName);
         }
     }
 }

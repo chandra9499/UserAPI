@@ -50,6 +50,8 @@ builder.Services.AddAuthentication(option =>
 
 builder.Services.AddTransient<ITokenDAL, TokenDAL>();
 builder.Services.AddTransient<ITokenBLL,TokenBLL>();
+builder.Services.AddTransient<IUserBLL, UserBLL>();
+builder.Services.AddTransient<IUserDAL, UserDAL>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using MovieAPI.DatabaseAccessLayer.Context;
-using MovieAPI.DatabaseAccessLayer.Interface;
 using MovieAPI.Models.DTOs;
 using System;
 using System.Collections.Generic;
@@ -12,18 +10,15 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MovieAPI.DatabaseAccessLayer.Repository
+namespace MovieAPI.DatabaseAccessLayer.Helper
 {
-    public class TokenDAL : ITokenDAL
+    public class TokenGenarator
     {
         private readonly IConfiguration _configuration;
-        private readonly DataBaseContext _context;
-        public TokenDAL(IConfiguration configuration, DataBaseContext context) 
-        {
+        public TokenGenarator(IConfiguration configuration) { 
             this._configuration = configuration;
-            this._context = context;
         }
-        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        public ClaimsPrincipal GetPrincipalFromExpieredToken(string token)
         {
             var tokenValidationParameter = new TokenValidationParameters()
             {
@@ -66,38 +61,6 @@ namespace MovieAPI.DatabaseAccessLayer.Repository
             string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
             return new TokenResponce { TokenString = tokenString, ValidTo = token.ValidTo };
-        }
-
-        public RefreshTokenRequest RefreshToken(RefreshTokenRequest tokenApiModel)
-        {
-            var principal = GetPrincipalFromExpiredToken(tokenApiModel.AccessToken);
-            var userName = principal.Identity.Name;
-            var user = _context.tokenInfos.SingleOrDefault(u => u.UserName == userName);
-            if (user == null || user.RefreshToken != tokenApiModel.RefreshToken || user.RefreshTokenExpiry <= DateTime.Now)
-            {
-                return null;
-            }
-            var newAccessToken = GetToken(principal.Claims);
-            var newRefreshToken = GetRefreshToken();
-            user.RefreshToken = newRefreshToken;
-            _context.SaveChanges();
-            return new RefreshTokenRequest
-            {
-                AccessToken = newAccessToken.TokenString,
-                RefreshToken = newRefreshToken
-            };
-        }
-
-        public bool RevokeToken(string userName)
-        {
-            var user = _context.tokenInfos.SingleOrDefault(u => u.UserName == userName);
-            if (user == null)
-            {
-                return false;
-            }
-            user.RefreshToken = null;
-            _context.SaveChanges();
-            return true;
         }
     }
 }
